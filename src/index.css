@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-display: 'Big Shoulders Display', 'Bebas Neue', Impact, sans-serif;
+    --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-script: 'Cormorant Garamond', Georgia, serif;
+    --color-ivory: #F9F6F0;
+    --color-charcoal: #141414;
+    --color-blush: #DCA59F;
+    --color-blush-soft: #F4E4E1;
+    --color-taupe: #EAE3D7;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-ivory);
+    color: var(--color-charcoal);
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  .font-script {
+    font-family: var(--font-script);
+    font-style: italic;
+  }
+}
+
+/* Custom editorial styles */
+.condensed-title {
+  font-family: 'Big Shoulders Display', 'Bebas Neue', sans-serif;
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+/* Rotating badge animation */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 22s linear infinite;
+}
+
+/* Glass condensation ripple and droplet styles */
+.glass-grain {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 0);
+  background-size: 8px 8px;
+}
+
+/* Water streak running down */
+@keyframes droplet-run {
+  0% {
+    transform: translateY(-100%) scaleY(0.4);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8;
+  }
+  80% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(400%) scaleY(1.8);
+    opacity: 0;
+  }
+}
+
+.water-drip {
+  animation: droplet-run 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}

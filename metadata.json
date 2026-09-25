@@ -1,0 +1,6 @@
+{
+  "name": "Studio Daisie - Boutique Australian Hair Studio",
+  "description": "High-fashion editorial boutique hair salon in Australia. Precision cut, bespoke dimensional colour, effortless styling, and an immersive physical wet glass visual experience.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
