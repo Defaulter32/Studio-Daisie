@@ -20,6 +20,7 @@ export const StudioImage: React.FC<StudioImageProps> = ({
   alt,
   className = '',
   aspectRatio,
+  priority = false,
 }) => {
   const [candidateIndex, setCandidateIndex] = useState(0);
   const [storedDataUrl, setStoredDataUrl] = useState<string | null>(() => getCachedImage(src));
@@ -47,32 +48,21 @@ export const StudioImage: React.FC<StudioImageProps> = ({
   // Generate URL variations
   const candidateUrls = React.useMemo(() => {
     if (storedDataUrl) return [storedDataUrl];
-    const urls = [src];
-    if (src.includes('+')) {
-      urls.push(src.replace(/\+/g, ' '));
-      urls.push(src.replace(/\+/g, '%20'));
-    }
-    if (src.includes('%20')) {
-      urls.push(src.replace(/%20/g, ' '));
-      urls.push(src.replace(/%20/g, '+'));
-    }
-    if (src.includes(' ')) {
-      urls.push(src.replace(/ /g, '%20'));
-      urls.push(src.replace(/ /g, '+'));
-    }
-    return Array.from(new Set(urls));
+    const base = src.replace(/^\/+/, '');
+    const variants = [
+      `/${base}`,
+      base,
+      `/${base.replace(/\+/g, ' ')}`,
+      base.replace(/\+/g, ' '),
+      `/${base.replace(/\+/g, '%20')}`,
+      base.replace(/\+/g, '%20'),
+      `/${base.replace(/%20/g, '+')}`,
+      base.replace(/%20/g, '+'),
+    ];
+    return Array.from(new Set(variants));
   }, [src, storedDataUrl]);
 
   const currentSrc = storedDataUrl || candidateUrls[candidateIndex] || src;
-
-  useEffect(() => {
-    if (imgRef.current && imgRef.current.complete) {
-      if (imgRef.current.naturalWidth > 1) {
-        setLoaded(true);
-        setHasError(false);
-      }
-    }
-  }, [currentSrc]);
 
   const handleImgError = () => {
     if (!storedDataUrl && candidateIndex < candidateUrls.length - 1) {
@@ -84,18 +74,15 @@ export const StudioImage: React.FC<StudioImageProps> = ({
 
   const handleImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
-    if (img.naturalWidth > 1) {
+    if (img.naturalWidth > 0) {
       setLoaded(true);
       setHasError(false);
-    } else {
-      handleImgError();
     }
   };
 
   // Reset state when src changes
   useEffect(() => {
     setCandidateIndex(0);
-    setLoaded(false);
     setHasError(false);
   }, [src]);
 
@@ -111,11 +98,12 @@ export const StudioImage: React.FC<StudioImageProps> = ({
         src={currentSrc}
         alt={alt}
         referrerPolicy="no-referrer"
-        loading="eager"
+        loading={priority ? 'eager' : 'lazy'}
+        decoding="async"
         onLoad={handleImgLoad}
         onError={handleImgError}
-        className={`w-full h-full object-cover transition-opacity duration-500 ${
-          loaded && !hasError ? 'opacity-100' : 'opacity-0'
+        className={`w-full h-full object-cover transition-opacity duration-300 ${
+          hasError ? 'opacity-20' : 'opacity-100'
         }`}
       />
     </div>
