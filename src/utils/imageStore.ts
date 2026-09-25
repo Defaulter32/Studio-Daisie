@@ -140,7 +140,7 @@ export function matchUploadedFile(file: File): string | null {
   return null;
 }
 
-// Preload all saved images on startup
+// Preload all saved images on startup and sync to server filesystem
 export async function initImageStore() {
   try {
     const db = await openDB();
@@ -150,7 +150,17 @@ export async function initImageStore() {
     req.onsuccess = () => {
       const cursor = req.result;
       if (cursor) {
-        memoryCache[cursor.key as string] = cursor.value as string;
+        const key = cursor.key as string;
+        const val = cursor.value as string;
+        memoryCache[key] = val;
+        
+        // Automatically sync to server public/ directory so git export contains the files
+        fetch('/api/save-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: key, dataUrl: val }),
+        }).catch(() => {});
+
         cursor.continue();
       } else {
         notifyListeners();

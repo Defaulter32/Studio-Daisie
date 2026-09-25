@@ -15,7 +15,7 @@ import { LifestyleDetailSection } from './components/LifestyleDetailSection';
 import { FinalCTASection } from './components/FinalCTASection';
 import { Footer } from './components/Footer';
 import { BookingModal } from './components/BookingModal';
-import { initImageStore } from './utils/imageStore';
+import { initImageStore, matchUploadedFile, saveImageToStore } from './utils/imageStore';
 
 export default function App() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
@@ -23,6 +23,38 @@ export default function App() {
 
   useEffect(() => {
     initImageStore();
+
+    // Global drag-and-drop listener to write dropped images to public/ directory without UI disruption
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault();
+    };
+
+    const handleDrop = async (e: DragEvent) => {
+      e.preventDefault();
+      if (!e.dataTransfer || !e.dataTransfer.files) return;
+      const files = Array.from(e.dataTransfer.files);
+      for (const file of files) {
+        const matched = matchUploadedFile(file);
+        if (matched) {
+          const reader = new FileReader();
+          reader.onload = async (ev) => {
+            const dataUrl = ev.target?.result as string;
+            if (dataUrl) {
+              await saveImageToStore(matched, dataUrl);
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    };
+
+    window.addEventListener('dragover', handleDragOver);
+    window.addEventListener('drop', handleDrop);
+
+    return () => {
+      window.removeEventListener('dragover', handleDragOver);
+      window.removeEventListener('drop', handleDrop);
+    };
   }, []);
 
 
